@@ -1,0 +1,47 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 90
+---
+
+# Step 1: Load the text file
+
+```{r}
+install.packages(c("tm")) 
+library(tm)
+text_file <- system.file("extdata", "book.txt", package = "tm") corpus <- Corpu(VectorSource(text_file))
+```
+
+# Step 2: Install required packages
+
+```{r}
+install.packages(c("SnowballC", "wordcloud")) 
+library(SnowballC) 
+library(wordcloud)
+```
+
+# Step 3: Text mining
+
+```{r}
+corpus <- tm_map(corpus, content_transformer(tolower)) 
+corpus <- tm_map(corpus, removePunctuation) 
+corpus <- tm_map(corpus, removeNumbers) 
+corpus <- tm_map(corpus, removeWords, stopwords("english")) 
+corpus <- tm_map(corpus, stripWhitespace)
+```
+
+# Step 3.II: Create term-document matrix and frequency table
+
+```{r}
+tdm <- TermDocumentMatrix(corpus) 
+tdm <- removeSparseTerms(tdm, sparse = 0.995)
+freq_table <- as.data.frame(as.matrix(tdm)) 
+freq_table <- sort(freq_table$Freq, decreasing = TRUE) # Extract the frequencies only
+```
+
+# Step 3.III: Create bar plot of 20 most frequent words
+
+```{r}
+top_words <- head(freq_table, 20) 
+barplot(top_words, names.arg = names(top_words), xlab = "Words", ylab = "Frequency", main = "Top 20 Most Frequent Words")
+```
